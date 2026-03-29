@@ -6,373 +6,128 @@ The goal of this project is to show why each dependency is used and how it fits 
 
 🏗 Architecture Overview
 
-The project follows a modern Android architecture stack:
+The project follows a robust, modern layered architecture:
 
-UI (Compose)
-   ↓
-ViewModel (State Management)
-   ↓
-Repository (Business Logic)
-   ↓
-Data Sources
-   ├── Network (Retrofit)
-   └── Local Database (Room)
+Code snippet
 
-Core technologies used:
+graph TD
 
-Jetpack Compose → UI
+    A[UI - Jetpack Compose] --> B[ViewModel - State Management]
+    
+    B --> C[Repository - Business Logic]
+    
+    C --> D[Data Sources]
+    
+    D --> E[Network - Retrofit]
+    
+    D --> F[Local DB - Room]
+    
+Core Technologies
+
+Jetpack Compose → Declarative UI
+
 Hilt → Dependency Injection
+
 Retrofit → Networking
-Room → Local database
-Coroutines → Async programming
-Navigation Compose → Navigation
-MockK / JUnit / Espresso → Testing
+
+Room → Local Persistence
+
+Coroutines → Asynchronous Programming
+
+Navigation Compose → In-app Navigation
+
+MockK / JUnit / Espresso → Comprehensive Testing
+
 📦 Dependency Explanation
 
-Below is a breakdown of each dependency and why it is required.
+Below is a breakdown of each dependency and its role in the ecosystem.
 
-Core Android
-androidx-core-ktx
+🔹 Core Android
 
-Provides Kotlin extensions for Android APIs.
+androidx-core-ktx: Provides Kotlin extensions for Android APIs to ensure cleaner syntax and less boilerplate.
 
-Benefits:
+Kotlin
+// Example: Concise SharedPreferences editing
+prefs.edit { putString("name", "John") }
 
-Cleaner Kotlin syntax
-Less boilerplate
-Extension functions
+🔹 Lifecycle & Architecture
 
-Example:
+lifecycle-runtime-ktx: Adds lifecycle-aware Coroutine support, ensuring tasks stop when the Activity/Fragment ends.
 
-prefs.edit {
-    putString("name", "John")
-}
-Lifecycle & Architecture
-lifecycle-runtime-ktx
+lifecycle-viewmodel-compose: Bridges the gap between Compose and ViewModels.
 
-Adds lifecycle aware coroutine support.
-
-Example:
-
-lifecycleScope.launch {
-    viewModel.loadData()
-}
-
-This ensures tasks stop when Activity/Fragment lifecycle ends.
-
-lifecycle-viewmodel-compose
-
-Allows Jetpack Compose to access ViewModels.
-
-Example:
-
+Kotlin
 val viewModel: MainViewModel = viewModel()
-Jetpack Compose UI
-compose-bom
 
-BOM (Bill Of Materials) ensures all Compose libraries use compatible versions.
+🔹 Jetpack Compose UI
 
-Instead of manually managing versions for:
+compose-bom: A Bill of Materials that synchronizes versions for all Compose libraries (UI, Material, Tooling).
 
-compose-ui
-compose-material
-compose-tooling
+compose-ui: The core declarative UI toolkit.
 
-Compose BOM keeps them synchronized.
+compose-ui-graphics: Provides Canvas, custom drawing, and rendering tools.
 
-compose-ui
+compose-ui-tooling-preview: Enables the @Preview annotation for instant UI feedback in Android Studio.
 
-Core UI toolkit used to build Android UI declaratively.
+🔹 Material Design & Activity
 
-Example:
+compose-material3: Implements Material Design 3 components (Buttons, Scaffolds, Cards).
 
-Text("Hello World")
-compose-ui-graphics
+activity-compose: Integrates Compose within standard Android Activities.
 
-Provides graphics APIs:
+🔹 Dependency Injection (Hilt)
 
-Canvas
-Custom drawing
-Shapes
-Rendering tools
+hilt-android: Automates object creation for cleaner architecture and better testability.
 
-Example:
+hilt-navigation-compose: Enables scoped ViewModel injection within a Navigation graph.
 
-Canvas(modifier = Modifier.size(100.dp)) {
-    drawCircle(Color.Red)
-}
-compose-ui-tooling
-
-Used for debugging Compose layouts inside Android Studio.
-
-Used during development only.
-
-compose-ui-tooling-preview
-
-Enables @Preview annotation.
-
-Example:
-
-@Preview
-@Composable
-fun PreviewHome() {
-    HomeScreen()
-}
-compose-ui-test-junit4
-
-Testing library for Compose UI tests.
-
-Example:
-
-composeTestRule.onNodeWithText("Login").assertExists()
-Material Design
-compose-material3
-
-Provides Material Design 3 UI components.
-
-Examples:
-
-Button
-Card
-Scaffold
-TopAppBar
-NavigationBar
-
-Example:
-
-Button(onClick = {}) {
-    Text("Login")
-}
-Activity Integration
-activity-compose
-
-Allows Compose to run inside Android Activities.
-
-Example:
-
-setContent {
-    MyApp()
-}
-Dependency Injection
-Hilt
-
-Hilt is used for Dependency Injection to manage object creation automatically.
-
-Benefits:
-
-Cleaner architecture
-Testability
-Scalable code
-
-Example:
-
-@HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val repository: UserRepository
-)
-hilt-android-compiler
-
-Annotation processor that generates the dependency graph.
-
-Required for:
-
-@Inject
-@Module
-@InstallIn
-hilt-navigation-compose
-
-Allows ViewModel injection in Compose navigation.
-
-Example:
-
+Kotlin
 val viewModel: HomeViewModel = hiltViewModel()
-Networking
-Retrofit
 
-Type-safe HTTP client used for REST API communication.
+🔹 Networking & Serialization
 
-Example:
+retrofit: A type-safe HTTP client for REST API communication.
 
-@GET("users")
-suspend fun getUsers(): List<User>
-converter-gson
+converter-gson: Automatically maps JSON responses to Kotlin Data Classes.
 
-Converts JSON responses into Kotlin objects.
+kotlinx-serialization: A Kotlin-native way to convert objects to/from JSON.
 
-Example:
+🔹 Local Database (Room)
 
-{
- "name": "John"
-}
+room-runtime: An abstraction layer over SQLite.
 
-Converted into:
+room-ktx: Adds Coroutine support for non-blocking database queries.
 
-User(name="John")
-Local Database
-Room
+room-compiler: Annotation processor that generates the underlying implementation code.
 
-Official Android database library built on SQLite.
+🔹 Image Loading
 
-Components:
+Coil: A modern, Kotlin-first image loader optimized for Compose.
 
-Entity
-DAO
-Database
+Glide: An alternative with powerful caching strategies for complex memory management.
 
-Example:
+📂 Project Structure
 
-@Dao
-interface UserDao {
-    @Query("SELECT * FROM users")
-    suspend fun getUsers(): List<User>
-}
-room-ktx
+The project is organized by layer to support scalability and separation of concerns:
 
-Adds Kotlin coroutine support for Room.
-
-Allows:
-
-suspend fun getUsers()
-room-compiler
-
-Annotation processor that generates database implementation code.
-
-Image Loading
-Coil
-
-Modern Kotlin-first image loading library optimized for Compose.
-
-Example:
-
-AsyncImage(
-    model = imageUrl,
-    contentDescription = null
-)
-Glide
-
-Alternative image loading library with strong caching support.
-
-Used for:
-
-Network images
-Memory caching
-Disk caching
-Navigation
-Navigation Compose
-
-Handles screen navigation in Jetpack Compose.
-
-Example:
-
-NavHost(navController, startDestination = "home")
-
-Supports:
-
-Deep links
-Navigation arguments
-Back stack handling
-Asynchronous Programming
-Kotlin Coroutines
-
-Used for background tasks and concurrency.
-
-Examples:
-
-Network requests
-Database queries
-Background processing
-
-Example:
-
-viewModelScope.launch {
-    repository.getUsers()
-}
-Serialization
-Kotlinx Serialization
-
-Converts Kotlin objects ↔ JSON.
-
-Example:
-
-@Serializable
-data class User(val name: String)
-Testing
-JUnit
-
-Unit testing framework used for testing business logic.
-
-Espresso
-
-UI testing framework used for automated UI testing.
-
-Example:
-
-onView(withId(R.id.login)).perform(click())
-MockK
-
-Mocking library used to simulate dependencies during tests.
-
-Example:
-
-val repo = mockk<UserRepository>()
-Plugins Used
-Android Application Plugin
-
-Builds the Android application module.
-
-Kotlin Android Plugin
-
-Adds Kotlin support for Android.
-
-Compose Plugin
-
-Required for Jetpack Compose compilation.
-
-Hilt Plugin
-
-Enables dependency injection setup.
-
-KSP
-
-Kotlin Symbol Processing used for faster annotation processing.
-
-Used by:
-
-Room
-Hilt
-Serialization
-📂 Project Structure Example
 app/
- ├── di/
- │    ├── NetworkModule
- │    └── DatabaseModule
- │
- ├── data/
- │    ├── api
- │    ├── database
- │    └── repository
- │
- ├── domain/
- │    └── usecase
- │
- ├── ui/
- │    ├── screens
- │    └── viewmodel
-🚀 Purpose of This Repository
 
-This repository serves as a reference implementation for modern Android architecture, including:
+ ├── di/                # Hilt Modules (Network, Database)
+ 
+ ├── data/              # Implementation (API, DAO, Repository Impl)
+ 
+ ├── domain/            # Business Logic (UseCases, Models)
+ 
+ ├── ui/                # Presentation (Screens, ViewModels, Theme)
+ 
+ └── util/              # Helpers & Extensions
+ 
+ 
+🧪 Testing Frameworks
+JUnit: Unit testing for business logic.
 
-Clean Architecture principles
-Modern Android libraries
-Scalable dependency setup
-Production-ready structure
-📚 Learning Goals
+Espresso: Automated UI testing for traditional views.
 
-This project helps developers understand:
+Compose UI Test: Specialized library for testing Compose nodes.
 
-Modern Android architecture
-Dependency management
-Compose UI development
-Dependency Injection
-Networking & database integration
-Testing strategies
+MockK: Powerful library for mocking dependencies in a Kotlin-idiomatic way.
